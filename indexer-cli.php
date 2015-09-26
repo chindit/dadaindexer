@@ -14,7 +14,7 @@
 	//Directories which will NOT be indexed
 	$infos['ignoredDir'] = array('System');
 	//Base de données
-	$infos['sql'] = array('server' => 'localhost', 'base' => 'dadavideos', 'user' => 'dadavideos', 'pass' => 'Indochine01');
+	$infos['sql'] = array('server' => 'localhost', 'base' => 'mybase', 'user' => 'myuser', 'pass' => 'mypass');
 	
 	//------------------------
 	//END OF USER DATA : DO NO MODIFY THIS CODE UNLESS YOU KNOW WHAT YOU'RE DOING!
