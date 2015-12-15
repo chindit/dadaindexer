@@ -1,3 +1,5 @@
+TEMP : bonjours aux membres d'OC qui liront ceci :)
+
 # dadaindexer
 PHP Indexation script / Script d'indexation PHP
 
