@@ -7,7 +7,9 @@ class AppManager
     {
 
         $config = self::getConfigFile();
-        var_dump($config);
+        if (!$config) {
+            return;
+        }
     }
 
     private static function getConfigFile() : array
@@ -20,20 +22,20 @@ class AppManager
             } else {
                 $file = getopt('', ['config:'])['config'];
             }
-            echo $file."\n";
             try {
                 Phar::mount('userConfig.ini', $file);
             } catch (\Exception $e) {
                 echo 'Unable to load settings.  Please check path.';
+                return [];
             }
             $config = @parse_ini_file($file);
             if (!$config) {
                 echo 'Configuration file is invalid.  Please check it!';
-                $config = [];
+                return [];
             }
-        } else {
-            $config = parse_ini_file('config.ini');
         }
-        return $config;
+        // Load default config and merge it with new one (if new one is given)
+        $defaultConfig = parse_ini_file('config.ini');
+        return ($config) ? array_merge($defaultConfig, $config) : $defaultConfig;
     }
 }
