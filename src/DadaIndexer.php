@@ -29,4 +29,5 @@ class DadaIndexer extends Application
 
         return $commands;
     }
+
 }

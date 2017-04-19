@@ -18,7 +18,7 @@ class Indexer extends AbstractCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = $this->getConfig($input, $output);
+        parent::execute($input, $output);
 
         return;
     }
