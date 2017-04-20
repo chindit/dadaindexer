@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace Dada\Command;
 
 
+use Dada\Entity\Directory;
+use Dada\Entity\File;
 use Dada\Service\Doctrine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 /**
  * Class AbstractCommand
@@ -32,6 +32,9 @@ abstract class AbstractCommand extends Command
         $this->config = parse_ini_file(__DIR__ . '/../Resources/config.ini');
     }
 
+    /**
+     * Command definition
+     */
     protected function configure()
     {
         parent::configure();
@@ -42,6 +45,13 @@ abstract class AbstractCommand extends Command
         );
     }
 
+    /**
+     * Loading default and user config
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return array
+     */
     protected function getConfig(InputInterface $input, OutputInterface $output) : array
     {
         if ($input->getOption('configuration') && !$this->customConfigLoaded) {
@@ -60,12 +70,23 @@ abstract class AbstractCommand extends Command
         return $this->config;
     }
 
+    /**
+     * Pre-checks before executing command
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->getConfig($input, $output);
         $this->doctrinePreCheck($output);
     }
 
+    /**
+     * Create SQL tables if needed
+     *
+     * @param OutputInterface $output
+     */
     private function doctrinePreCheck(OutputInterface $output)
     {
         try {
