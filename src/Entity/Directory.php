@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  * @ORM\Table(name="directory")
+ * @ORM\Entity(repositoryClass="Dada\Repository\DirectoryRepository")
  */
 class Directory
 {
@@ -57,6 +58,20 @@ class Directory
      */
     private $type;
 
+
+    /**
+     * Constructor
+     * @param \DirectoryIterator $directoryIterator
+     * @param int $level
+     * @param Directory|null $parent
+     */
+    public function __construct(\DirectoryIterator $directoryIterator, int $level = 0, Directory $parent = null)
+    {
+        $this->name = $directoryIterator->getFilename();
+        $this->path = $directoryIterator->getPathname();
+        $this->parent = $parent;
+        $this->level = $level;
+    }
 
     /**
      * Get id
