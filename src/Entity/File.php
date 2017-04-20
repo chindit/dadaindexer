@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Dada\Entity;
 
@@ -9,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  * @ORM\Table(name="file")
+ * @ORM\Entity(repositoryClass="Dada\Repository\FileRepository")
  */
 class File
 {

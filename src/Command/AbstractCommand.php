@@ -90,9 +90,12 @@ abstract class AbstractCommand extends Command
     private function doctrinePreCheck(OutputInterface $output)
     {
         try {
-            $schemaTool = new \Doctrine\ORM\Tools\SchemaTool(Doctrine::getManager());
-            $classes = Doctrine::getManager()->getMetadataFactory()->getAllMetadata();
-            $schemaTool->createSchema($classes);
+            $schemaManager = Doctrine::getManager()->getConnection()->getSchemaManager();
+            if ($schemaManager->tablesExist(array('file', 'directory')) != true) {
+                $schemaTool = new \Doctrine\ORM\Tools\SchemaTool(Doctrine::getManager());
+                $classes = Doctrine::getManager()->getMetadataFactory()->getAllMetadata();
+                $schemaTool->createSchema($classes);
+            }
         } catch (\Exception $e) {
             $output->writeln('<error>Unable to create tables in database</error>');
             $output->writeln('<error>' . $e->getMessage() . '</error>');
