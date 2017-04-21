@@ -18,6 +18,6 @@ class DirectoryRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('path', $path)
             ->setParameter('name', $name)
             ->getQuery()
-            ->getSingleResult();
+            ->getOneOrNullResult();
     }
 }

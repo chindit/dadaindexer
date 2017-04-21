@@ -14,6 +14,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class File
 {
+    const PICTURE = 'picture';
+    const VIDEO = 'video';
+    const EBOOK = 'ebook';
+    const OTHER = 'other';
+
     /**
      * @var int
      *
@@ -40,16 +45,9 @@ class File
     /**
      * @var int
      *
-     * @ORM\Column(name="parent", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Directory")
      */
-    private $parent;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="image", type="boolean")
-     */
-    private $image;
+    private $directory;
 
     /**
      * @var string
@@ -57,13 +55,6 @@ class File
      * @ORM\Column(name="thumbnail", type="string", length=50, nullable=true, unique=true)
      */
     private $thumbnail;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="size", type="integer", nullable=true)
-     */
-    private $size;
 
     /**
      * @var int
@@ -78,6 +69,13 @@ class File
      * @ORM\Column(name="height", type="integer", nullable=true)
      */
     private $height;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="weight", type="bigint", nullable=false)
+     */
+    private $weight;
 
     /**
      * @var \DateTime
@@ -96,10 +94,22 @@ class File
     /**
      * @var string
      *
+     * @ORM\Column(name="path", type="string", length=500, nullable=true)
+     */
+    private $path;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="type", type="string", length=25)
      */
     private $type;
 
+    public function __construct()
+    {
+        $this->width = 0;
+        $this->height = 0;
+    }
 
     /**
      * Get id
@@ -162,13 +172,13 @@ class File
     /**
      * Set parent
      *
-     * @param integer $parent
+     * @param Directory|null $directory
      *
      * @return File
      */
-    public function setParent($parent)
+    public function setDirectory(Directory $directory = null) : File
     {
-        $this->parent = $parent;
+        $this->directory = $directory;
 
         return $this;
     }
@@ -178,33 +188,9 @@ class File
      *
      * @return int
      */
-    public function getParent()
+    public function getDirectory() : ?Directory
     {
-        return $this->parent;
-    }
-
-    /**
-     * Set image
-     *
-     * @param boolean $image
-     *
-     * @return File
-     */
-    public function setImage($image)
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    /**
-     * Get image
-     *
-     * @return bool
-     */
-    public function getImage()
-    {
-        return $this->image;
+        return $this->directory;
     }
 
     /**
@@ -229,30 +215,6 @@ class File
     public function getThumbnail()
     {
         return $this->thumbnail;
-    }
-
-    /**
-     * Set size
-     *
-     * @param integer $size
-     *
-     * @return File
-     */
-    public function setSize($size)
-    {
-        $this->size = $size;
-
-        return $this;
-    }
-
-    /**
-     * Get size
-     *
-     * @return int
-     */
-    public function getSize()
-    {
-        return $this->size;
     }
 
     /**
@@ -304,6 +266,24 @@ class File
     }
 
     /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @param int $weight
+     * @return File
+     */
+    public function setWeight(int $weight): File
+    {
+        $this->weight = $weight;
+        return $this;
+    }
+
+    /**
      * Set modified
      *
      * @param \DateTime $modified
@@ -349,6 +329,24 @@ class File
     public function getMd5sum()
     {
         return $this->md5sum;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param mixed $path
+     * @return File
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+        return $this;
     }
 
     /**

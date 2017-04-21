@@ -47,16 +47,9 @@ class Directory
     /**
      * @var int
      *
-     * @ORM\Column(name="parent", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Directory")
      */
     private $parent;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=25)
-     */
-    private $type;
 
 
     /**
@@ -158,11 +151,11 @@ class Directory
     /**
      * Set parent
      *
-     * @param integer $parent
+     * @param Directory $parent
      *
      * @return Directory
      */
-    public function setParent($parent)
+    public function setParent(Directory $parent) : Directory
     {
         $this->parent = $parent;
 
@@ -172,35 +165,10 @@ class Directory
     /**
      * Get parent
      *
-     * @return int
+     * @return Directory
      */
-    public function getParent()
+    public function getParent() : Directory
     {
         return $this->parent;
     }
-
-    /**
-     * Set type
-     *
-     * @param string $type
-     *
-     * @return Directory
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
 }
-

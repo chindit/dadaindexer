@@ -41,6 +41,7 @@ class Doctrine
         $driver = new AnnotationDriver(new AnnotationReader(), $paths);
         AnnotationRegistry::registerLoader('class_exists');
         $config->setMetadataDriverImpl($driver);
+        $config->setAutoGenerateProxyClasses(true);
         $this->entityManager = EntityManager::create($dbParams, $config);
     }
 
