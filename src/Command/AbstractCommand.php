@@ -21,6 +21,8 @@ abstract class AbstractCommand extends Command
 {
     private $config;
     private $customConfigLoaded = false;
+    /** @var OutputInterface */
+    private $output;
 
     /**
      * AbstractCommand constructor.
@@ -54,6 +56,10 @@ abstract class AbstractCommand extends Command
      */
     protected function getConfig(InputInterface $input, OutputInterface $output) : array
     {
+        //Setting output
+        $this->output = $output;
+
+        //Loading config
         if ($input->getOption('configuration') && !$this->customConfigLoaded) {
             $filePath = $input->getOption('configuration');
             $customConfig = parse_ini_file($filePath);
@@ -68,6 +74,15 @@ abstract class AbstractCommand extends Command
         // Initiating Doctrine
         Doctrine::getInstance($this->config);
         return $this->config;
+    }
+
+    /**
+     * Output a message to the User
+     * @param string $output
+     */
+    protected function output (string $output)
+    {
+        $this->output->writeLn($output);
     }
 
     /**

@@ -68,15 +68,6 @@ class Indexer extends AbstractCommand
     }
 
     /**
-     * Output a message to the User
-     * @param string $output
-     */
-    private function output (string $output)
-    {
-        $this->output->writeLn($output);
-    }
-
-    /**
      * Check parameters specific to this command
      * @param InputInterface $input
      */
