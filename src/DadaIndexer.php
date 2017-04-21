@@ -7,6 +7,7 @@ namespace Dada;
 use Dada\Command\FileChecker;
 use Dada\Command\FullIndexer;
 use Dada\Command\IndexCleaner;
+use Dada\Command\IndexDestroyer;
 use Dada\Command\Indexer;
 use Dada\Command\ThumbnailCleaner;
 use Dada\Command\Thumbnailer;
@@ -26,6 +27,7 @@ class DadaIndexer extends Application
         $commands[] = new IndexCleaner();
         $commands[] = new ThumbnailCleaner();
         $commands[] = new Thumbnailer();
+        $commands[] = new IndexDestroyer();
 
         return $commands;
     }
