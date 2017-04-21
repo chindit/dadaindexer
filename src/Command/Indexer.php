@@ -104,13 +104,6 @@ class Indexer extends AbstractCommand
             if ($file->isFile()) {
                 $this->indexFile($file, $parent);
             } elseif ($file->isDir()) {
-                // Ignore hidden files
-                if (in_array($file->getFilename(), $this->config['ignoredMime']) || (strpos($file->getFilename(),
-                            '.') === 0)
-                ) {
-                    continue;
-                }
-
                 /** @var DirectoryRepository $directoryRepository */
                 $directoryRepository = Doctrine::getManager()->getRepository(Directory::class);
                 $currentDirectory =
