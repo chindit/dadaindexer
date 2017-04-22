@@ -7,6 +7,7 @@ namespace Dada\Command;
 use Dada\Entity\Directory;
 use Dada\Entity\File;
 use Dada\Service\Doctrine;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -23,6 +24,7 @@ class IndexDestroyer extends AbstractCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion('Do you really want to destroy your current index ?', false);
 
@@ -46,6 +48,7 @@ class IndexDestroyer extends AbstractCommand
                 $connection->commit();
             } catch (\Exception $e) {
                 $connection->rollback();
+                $output->writeln('<comment>Unable to destroy index.  Returned error is following: ' . $e->getMessage() . '</comment>');
             }
         }
         $output->writeln('<info>Purge done</info>');

@@ -8,9 +8,11 @@ use Dada\Entity\File;
 use Dada\Repository\DirectoryRepository;
 use Dada\Resources\Type;
 use Dada\Service\Doctrine;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class Indexer
@@ -36,7 +38,7 @@ class Indexer extends AbstractCommand
         $this->setName('index');
         $this->setDescription('Index your collection');
         $this->setHelp('Perform a simple index of your picture collection');
-        $this->addOption('directory', 'd', InputOption::VALUE_REQUIRED, 'Directory to index');
+        $this->addOption('directory', 'd', InputOption::VALUE_OPTIONAL, 'Directory to index');
         $this->addOption('simulate', null, InputOption::VALUE_OPTIONAL, 'Simulate query and don\'t modify DB');
         $this->addOption('split-dirs', null, InputOption::VALUE_OPTIONAL,
             'Split directories and put them in their own table');
@@ -44,8 +46,10 @@ class Indexer extends AbstractCommand
 
     /**
      * Main method for Command
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
+     * @return int|null|void
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
@@ -75,7 +79,29 @@ class Indexer extends AbstractCommand
     {
         $this->simulate = $input->hasParameterOption('--simulate');
         $this->splitDirs = $input->hasParameterOption('--split-dirs');
-        $this->dir = $input->getOption('directory') ?? __DIR__;
+
+        /** @var QuestionHelper $helper */
+        $helper = $this->getHelper('question');
+        $dir = $input->getOption('directory') ?? __DIR__;
+        if (is_null($dir)) {
+            $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.  By default, it
+         will be «' . __DIR__ . '».  Is it correct ?', false);
+            if (!$helper->ask($input, $this->output, $question)) {
+                $this->output('<info>Clean canceled by user request</info>');
+                return;
+            } else {
+                $this->dir = __DIR__;
+            }
+        } elseif (!is_dir($dir)) {
+            $question = new ConfirmationQuestion('The directory you\'ve entered is not valid.  Do you want to use «'
+                . __DIR__ . '» instead ?');
+            if (!$helper->ask($input, $this->output, $question)) {
+                $this->output('<info>Clean canceled by user request</info>');
+                return;
+            } else {
+                $this->dir = __DIR__;
+            }
+        }
     }
 
     /**
