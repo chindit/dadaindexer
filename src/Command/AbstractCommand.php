@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace Dada\Command;
 
 
-use Dada\Entity\Directory;
-use Dada\Entity\File;
 use Dada\Service\Doctrine;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class AbstractCommand
@@ -23,6 +23,9 @@ abstract class AbstractCommand extends Command
     private $customConfigLoaded = false;
     /** @var OutputInterface */
     private $output;
+    protected $dir;
+    private $thumbsDir;
+    private $duplicateDir;
 
     /**
      * AbstractCommand constructor.
@@ -45,6 +48,7 @@ abstract class AbstractCommand extends Command
                 new InputOption('configuration', 'c', InputOption::VALUE_OPTIONAL),
             ))
         );
+        $this->addOption('directory', 'd', InputOption::VALUE_OPTIONAL, 'Directory to index');
     }
 
     /**
@@ -73,6 +77,8 @@ abstract class AbstractCommand extends Command
         }
         // Initiating Doctrine
         Doctrine::getInstance($this->config);
+        // Checking dirs
+        $this->createSystemDirs();
         return $this->config;
     }
 
@@ -90,11 +96,13 @@ abstract class AbstractCommand extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     * @return int|null|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->getConfig($input, $output);
         $this->doctrinePreCheck($output);
+        $this->directoryHelper($input);
     }
 
     /**
@@ -116,5 +124,66 @@ abstract class AbstractCommand extends Command
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             exit(1);
         }
+    }
+
+    /**
+     * Check directory entered by User
+     * @param InputInterface $input
+     */
+    private function directoryHelper(InputInterface $input) : void
+    {
+        /** @var QuestionHelper $helper */
+        $helper = $this->getHelper('question');
+        $dir = $input->getOption('directory') ?? __DIR__;
+        if (is_null($dir)) {
+            $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.  By default, it
+         will be «' . __DIR__ . '».  Is it correct ?', false);
+            if (!$helper->ask($input, $this->output, $question)) {
+                $this->output('<info>Clean canceled by user request</info>');
+                return;
+            } else {
+                $this->dir = __DIR__;
+            }
+        } elseif (!is_dir($dir)) {
+            $question = new ConfirmationQuestion('The directory you\'ve entered is not valid.  Do you want to use «'
+                . __DIR__ . '» instead ?');
+            if (!$helper->ask($input, $this->output, $question)) {
+                $this->output('<info>Clean canceled by user request</info>');
+                return;
+            } else {
+                $this->dir = __DIR__;
+            }
+        }
+    }
+
+    private function createSystemDirs() : void
+    {
+        // Thumbs dir
+        if (!is_dir($this->dir .  '/' . $this->config['thumbsPath'])) {
+            if (!mkdir($this->dir .  '/' . $this->config['thumbsPath'])) {
+                $this->output('<error>Unable to create system dir</error>');
+                exit(1);
+            }
+        }
+        // Duplicate dir
+        if (!is_dir($this->dir .  '/' . $this->config['duplicatePath'])) {
+            if (!mkdir($this->dir .  '/' . $this->config['duplicatePath'])) {
+                $this->output('<error>Unable to create system dir</error>');
+                exit(1);
+            }
+        }
+
+        $this->thumbsDir = $this->dir .  '/' . $this->config['thumbsPath'] . '/';
+        $this->duplicateDir = $this->dir .  '/' . $this->config['duplicatePath'] . '/';
+    }
+
+    protected function getThumbsDir() : string
+    {
+        return $this->thumbsDir;
+    }
+
+    protected function getDuplicateDir() : string
+    {
+        return $this->duplicateDir;
     }
 }

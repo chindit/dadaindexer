@@ -45,7 +45,7 @@ class IndexCleaner extends AbstractCommand
             } else {
                 /** @var File $file */
                 foreach ($fileList as $file) {
-                    if (!is_file($directory->getPath() . $file->getName())) {
+                    if (!is_file($directory->getPath() . '/' . $file->getName())) {
                         Doctrine::getManager()->remove($file);
                     }
                 }
