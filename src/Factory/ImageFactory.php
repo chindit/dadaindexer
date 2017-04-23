@@ -1,27 +1,29 @@
 <?php
 declare(strict_types=1);
 
+namespace Dada\Factory;
+
 class ImageFactory
 {
-    public static function create(string $directory, string $filename) 
+    public static function create(string $filename)
     {
         $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
         $mime = finfo_file($fileInfo, $filename);
         finfo_close($fileInfo);
+
         switch ($mime) {
             case 'image/jpeg':
-                return imagecreatefromjpeg($directory . $filename);
+                return imagecreatefromjpeg( $filename);
             case 'image/png':
-                return imagecreatefrompng($directory . $filename);
+                return imagecreatefrompng($filename);
             case 'image/vnd.wap.wbmp':
-                return imagecreatefromwbmp($directory . $filename);
+                return imagecreatefromwbmp($filename);
             case 'image/gif':
-                return imagecreatefromgif($directory . $filename);
+                return imagecreatefromgif($filename);
             case 'image/xbm':
-                return imagecreatefromxbm($directory . $filename);
+                return imagecreatefromxbm($filename);
             default:
-                exit('FATAL ERROR : Unsupported image type: '. $mime);
-                break;
+                return null;
         }
     }
 }
