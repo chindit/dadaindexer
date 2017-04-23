@@ -77,8 +77,7 @@ abstract class AbstractCommand extends Command
         }
         // Initiating Doctrine
         Doctrine::getInstance($this->config);
-        // Checking dirs
-        $this->createSystemDirs();
+
         return $this->config;
     }
 
@@ -136,11 +135,13 @@ abstract class AbstractCommand extends Command
         $helper = $this->getHelper('question');
         $this->dir = $input->getOption('directory');
         if (is_null($this->dir)) {
-            $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.  By default, it
-         will be «' . __DIR__ . '».  Is it correct ?', false);
+            $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.
+            By default, it will be 
+            «' . __DIR__ . '».
+            Is it correct ? (y/N)', false);
             if (!$helper->ask($input, $this->output, $question)) {
-                $this->output('<info>Clean canceled by user request</info>');
-                return;
+                $this->output('<info>Action canceled by user request</info>');
+                exit(1);
             } else {
                 $this->dir = __DIR__;
             }
@@ -148,12 +149,15 @@ abstract class AbstractCommand extends Command
             $question = new ConfirmationQuestion('The directory you\'ve entered is not valid.  Do you want to use «'
                 . __DIR__ . '» instead ?');
             if (!$helper->ask($input, $this->output, $question)) {
-                $this->output('<info>Clean canceled by user request</info>');
-                return;
+                $this->output('<info>Action canceled by user request</info>');
+                exit(1);
             } else {
                 $this->dir = __DIR__;
             }
         }
+
+        // Checking dirs
+        $this->createSystemDirs();
     }
 
     /**
