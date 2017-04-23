@@ -22,6 +22,7 @@ class Indexer extends AbstractCommand
 {
     private $simulate = false;
     private $splitDirs = false;
+    private $keepDuplicates = false;
     /** @var OutputInterface */
     private $output;
     private $config;
@@ -38,6 +39,8 @@ class Indexer extends AbstractCommand
         $this->addOption('simulate', null, InputOption::VALUE_OPTIONAL, 'Simulate query and don\'t modify DB');
         $this->addOption('split-dirs', null, InputOption::VALUE_OPTIONAL,
             'Split directories and put them in their own table');
+        $this->addOption('keep-duplicates', null, InputOption::VALUE_OPTIONAL,
+            'If a duplicate file is detected, it\'s skipped instead of being moved');
     }
 
     /**
@@ -75,6 +78,7 @@ class Indexer extends AbstractCommand
     {
         $this->simulate = $input->hasParameterOption('--simulate');
         $this->splitDirs = $input->hasParameterOption('--split-dirs');
+        $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates');
     }
 
     /**
@@ -178,7 +182,9 @@ class Indexer extends AbstractCommand
         $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['md5sum' => $currentFile->getMd5sum()]);
         if ($indexedFile) {
             $this->output('<comment>File «' . $file->getFilename() . '» is detected as duplicate.</comment>');
-            $this->moveDuplicate($file);
+            if (!$this->keepDuplicates) {
+                $this->moveDuplicate($file);
+            }
             return;
         }
 
