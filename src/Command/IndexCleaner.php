@@ -23,7 +23,7 @@ class IndexCleaner extends AbstractCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         Doctrine::getInstance($this->getConfig($input, $output));
-
+        parent::execute($input, $output);
         $this->cleaner();
     }
 

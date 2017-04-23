@@ -8,10 +8,10 @@ namespace Dada\Repository;
  */
 class FileRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function getChecksum()
+    public function getThumbs()
     {
         return $this->createQueryBuilder('f')
-            ->select('f.md5sum')
+            ->select('f.thumbnail')
             ->getQuery()
             ->getScalarResult();
     }
