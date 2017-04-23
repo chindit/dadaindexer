@@ -111,6 +111,13 @@ class Indexer extends AbstractCommand
         }
     }
 
+    /**
+     * Build basic directory structure
+     * @param \DirectoryIterator $file
+     * @param int $level
+     * @param Directory|null $parent
+     * @return Directory
+     */
     private function initDirectory(\DirectoryIterator $file, int $level, Directory $parent = null) : Directory
     {
         $directory = new Directory($file, $level + 1, $parent);

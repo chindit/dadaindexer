@@ -156,6 +156,9 @@ abstract class AbstractCommand extends Command
         }
     }
 
+    /**
+     * Create system directories, used for duplicates and thumbnails
+     */
     private function createSystemDirs() : void
     {
         // Thumbs dir
@@ -177,16 +180,29 @@ abstract class AbstractCommand extends Command
         $this->duplicateDir = $this->dir .  '/' . $this->config['duplicatePath'] . '/';
     }
 
+    /**
+     * Return full path to thumbnails directory
+     * @return string
+     */
     protected function getThumbsDir() : string
     {
         return $this->thumbsDir;
     }
 
+    /**
+     * Return full path to duplicate directory
+     * @return string
+     */
     protected function getDuplicateDir() : string
     {
         return $this->duplicateDir;
     }
 
+    /**
+     * Check if given directory is a system directory
+     * @param \DirectoryIterator $directory
+     * @return bool
+     */
     protected function isSystemDir(\DirectoryIterator $directory) : bool
     {
         return ($directory == $this->getThumbsDir() || $directory == $this->getDuplicateDir());

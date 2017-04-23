@@ -10,8 +10,16 @@ use Dada\Service\Doctrine;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class IndexCleaner
+ *
+ * @package Dada\Command
+ */
 class IndexCleaner extends AbstractCommand
 {
+    /**
+     * Command definition
+     */
     protected function configure(): void
     {
         parent::configure();
@@ -20,6 +28,11 @@ class IndexCleaner extends AbstractCommand
         $this->setHelp('Remove obsolete entries from your collection');
     }
 
+    /**
+     * Main method.  Launch command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         Doctrine::getInstance($this->getConfig($input, $output));
@@ -27,6 +40,9 @@ class IndexCleaner extends AbstractCommand
         $this->cleaner();
     }
 
+    /**
+     * Clean the index
+     */
     private function cleaner() : void
     {
         // Get list of directories
@@ -52,6 +68,5 @@ class IndexCleaner extends AbstractCommand
                 Doctrine::getManager()->flush();
             }
         }
-
     }
 }

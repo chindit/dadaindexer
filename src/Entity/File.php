@@ -105,6 +105,9 @@ class File
      */
     private $type;
 
+    /**
+     * File constructor.
+     */
     public function __construct()
     {
         $this->width = 0;
@@ -116,19 +119,19 @@ class File
      *
      * @return int
      */
-    public function getId()
+    public function getId() : int
     {
         return $this->id;
     }
 
     /**
-     * Set nom
+     * Set name
      *
      * @param string $name
      *
      * @return File
      */
-    public function setName($name)
+    public function setName(string $name) : File
     {
         $this->name = $name;
 
@@ -136,11 +139,11 @@ class File
     }
 
     /**
-     * Get nom
+     * Get name
      *
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -152,7 +155,7 @@ class File
      *
      * @return File
      */
-    public function setMime($mime)
+    public function setMime(string $mime) : File
     {
         $this->mime = $mime;
 
@@ -164,7 +167,7 @@ class File
      *
      * @return string
      */
-    public function getMime()
+    public function getMime() : string
     {
         return $this->mime;
     }
@@ -200,7 +203,7 @@ class File
      *
      * @return File
      */
-    public function setThumbnail($thumbnail)
+    public function setThumbnail( $thumbnail) : File
     {
         $this->thumbnail = $thumbnail;
 
@@ -212,7 +215,7 @@ class File
      *
      * @return string
      */
-    public function getThumbnail()
+    public function getThumbnail() : ?string
     {
         return $this->thumbnail;
     }
@@ -224,7 +227,7 @@ class File
      *
      * @return File
      */
-    public function setWidth($width)
+    public function setWidth(int $width) : File
     {
         $this->width = $width;
 
@@ -236,7 +239,7 @@ class File
      *
      * @return int
      */
-    public function getWidth()
+    public function getWidth() : int
     {
         return $this->width;
     }
@@ -248,7 +251,7 @@ class File
      *
      * @return File
      */
-    public function setHeight($height)
+    public function setHeight(int $height) : File
     {
         $this->height = $height;
 
@@ -260,17 +263,9 @@ class File
      *
      * @return int
      */
-    public function getHeight()
+    public function getHeight() : int
     {
         return $this->height;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWeight(): int
-    {
-        return $this->weight;
     }
 
     /**
@@ -284,13 +279,21 @@ class File
     }
 
     /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
      * Set modified
      *
      * @param \DateTime $modified
      *
      * @return File
      */
-    public function setModified($modified)
+    public function setModified(\DateTime $modified) : File
     {
         $this->modified = $modified;
 
@@ -302,7 +305,7 @@ class File
      *
      * @return \DateTime
      */
-    public function getModified()
+    public function getModified() : \DateTime
     {
         return $this->modified;
     }
@@ -314,7 +317,7 @@ class File
      *
      * @return File
      */
-    public function setMd5sum($md5sum)
+    public function setMd5sum(string $md5sum) : File
     {
         $this->md5sum = $md5sum;
 
@@ -326,27 +329,27 @@ class File
      *
      * @return string
      */
-    public function getMd5sum()
+    public function getMd5sum() : string
     {
         return $this->md5sum;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPath()
-    {
-        return $this->path;
     }
 
     /**
      * @param mixed $path
      * @return File
      */
-    public function setPath($path)
+    public function setPath(string $path) : File
     {
         $this->path = $path;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPath() : string
+    {
+        return $this->path;
     }
 
     /**
@@ -356,7 +359,7 @@ class File
      *
      * @return File
      */
-    public function setType($type)
+    public function setType($type) : File
     {
         $this->type = $type;
 
