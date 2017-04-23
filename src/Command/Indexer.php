@@ -22,7 +22,6 @@ class Indexer extends AbstractCommand
 {
     private $simulate = false;
     private $splitDirs = false;
-    private $dir = __DIR__;
     /** @var OutputInterface */
     private $output;
     private $config;
@@ -89,7 +88,7 @@ class Indexer extends AbstractCommand
         $iterator = new \DirectoryIterator($directory);
 
         foreach ($iterator as $file) {
-            if ($file->getFilename() == '.' || $file->getFilename() == '..') {
+            if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file)) {
                 continue;
             }
             if ($file->isFile()) {
@@ -160,7 +159,7 @@ class Indexer extends AbstractCommand
         $currentFile->setName($file->getFilename());
         $currentFile->setDirectory($parent);
         $currentFile->setWeight($file->getSize());
-        $currentFile->setPath($file->getBasename());
+        $currentFile->setPath($file->getPathname());
 
         if ($currentFile->getType() == File::PICTURE) {
             $size = getimagesize($file->getPathname());

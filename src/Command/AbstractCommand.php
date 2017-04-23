@@ -134,8 +134,8 @@ abstract class AbstractCommand extends Command
     {
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
-        $dir = $input->getOption('directory') ?? __DIR__;
-        if (is_null($dir)) {
+        $this->dir = $input->getOption('directory');
+        if (is_null($this->dir)) {
             $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.  By default, it
          will be «' . __DIR__ . '».  Is it correct ?', false);
             if (!$helper->ask($input, $this->output, $question)) {
@@ -144,7 +144,7 @@ abstract class AbstractCommand extends Command
             } else {
                 $this->dir = __DIR__;
             }
-        } elseif (!is_dir($dir)) {
+        } elseif (!is_dir($this->dir)) {
             $question = new ConfirmationQuestion('The directory you\'ve entered is not valid.  Do you want to use «'
                 . __DIR__ . '» instead ?');
             if (!$helper->ask($input, $this->output, $question)) {
@@ -185,5 +185,10 @@ abstract class AbstractCommand extends Command
     protected function getDuplicateDir() : string
     {
         return $this->duplicateDir;
+    }
+
+    protected function isSystemDir(\DirectoryIterator $directory) : bool
+    {
+        return ($directory == $this->getThumbsDir() || $directory == $this->getDuplicateDir());
     }
 }
