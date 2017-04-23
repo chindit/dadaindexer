@@ -211,4 +211,14 @@ abstract class AbstractCommand extends Command
     {
         return ($directory == $this->getThumbsDir() || $directory == $this->getDuplicateDir());
     }
+
+    /**
+     * Return relative path to base index path
+     * @param \DirectoryIterator $file
+     * @return string
+     */
+    protected function getRelativePath(\DirectoryIterator $file) : string
+    {
+        return (substr($file->getPathname(), strlen($this->dir)));
+    }
 }

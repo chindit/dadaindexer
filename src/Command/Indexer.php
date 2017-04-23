@@ -166,12 +166,12 @@ class Indexer extends AbstractCommand
         $currentFile->setName($file->getFilename());
         $currentFile->setDirectory($parent);
         $currentFile->setWeight($file->getSize());
-        $currentFile->setPath($file->getPathname());
+        $currentFile->setPath($this->getRelativePath($file));
 
         if ($currentFile->getType() == File::PICTURE) {
             $size = getimagesize($file->getPathname());
-            $currentFile->setHeight($size[0]);
-            $currentFile->setWidth($size[1]);
+            $currentFile->setHeight($size[1]);
+            $currentFile->setWidth($size[0]);
         }
 
         // Check for duplicate
