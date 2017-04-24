@@ -159,7 +159,7 @@ class Indexer extends AbstractCommand
         }
 
         // Check if file exists
-        $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['path' => $file->getBasename(), 'name' => $file->getFilename()]);
+        $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['path' => $this->getRelativePath($file), 'name' => $file->getFilename()]);
         if ($indexedFile) {
             return;
         }
