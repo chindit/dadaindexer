@@ -61,7 +61,7 @@ class Indexer extends AbstractCommand
         // Loading user args
         $this->checkCustomParameters($input);
         // Indexing
-        $this->indexDirectory($this->dir);
+        $this->startIndexing();
 
         $output->writeln('<info>Process took ' . round((microtime(true) - $timeStart), 3) . ' seconds.</info>');
         return;
@@ -88,12 +88,13 @@ class Indexer extends AbstractCommand
         $iterator = new \DirectoryIterator($directory);
 
         foreach ($iterator as $file) {
-            if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
-                continue;
-            }
             if ($file->isFile()) {
                 $this->indexFile($file, $parent);
             } elseif ($file->isDir()) {
+                // Skip unwanted directories
+                if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
+                    continue;
+                }
                 /** @var DirectoryRepository $directoryRepository */
                 $directoryRepository = Doctrine::getManager()->getRepository(Directory::class);
                 $currentDirectory =
@@ -199,5 +200,19 @@ class Indexer extends AbstractCommand
     private function moveDuplicate(\DirectoryIterator $file) : void
     {
         rename($file->getPathname(), $this->getDuplicateDir() . $file->getFilename());
+    }
+
+    /**
+     * Special method used to create the root directory of a new index
+     */
+    private function startIndexing() : void
+    {
+        $baseIterator = new \DirectoryIterator($this->dir);
+        $baseDirectory = $this->initDirectory($baseIterator, 0);
+        $baseDirectory->setPath($baseIterator->getRealPath());
+        Doctrine::getManager()->flush();
+
+        // Launch indexation process
+        $this->indexDirectory($baseDirectory->getPath(), 1, $baseDirectory);
     }
 }

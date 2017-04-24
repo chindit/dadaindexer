@@ -157,9 +157,7 @@ abstract class AbstractCommand extends Command
         }
 
         // Add trailing slash
-        if (substr($this->dir, -1) != '/') {
-            $this->dir .= '/';
-        }
+        $this->dir = $this->addTrailingSlash(realpath($this->dir));
 
         // Checking dirs
         $this->createSystemDirs();
@@ -172,21 +170,25 @@ abstract class AbstractCommand extends Command
     {
         // Thumbs dir
         if (!is_dir($this->dir . $this->config['thumbsPath'])) {
-            if (!mkdir($this->dir .  $this->config['thumbsPath'])) {
+            $path = $this->config['thumbsPath'];
+            $path = (substr($path, 0, 1) === '/') ? $path : $this->dir . $path;
+            if (!mkdir($path, 0777, true)) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
         // Duplicate dir
         if (!is_dir($this->dir .  $this->config['duplicatePath'])) {
-            if (!mkdir($this->dir .  $this->config['duplicatePath'])) {
+            $path = $this->config['duplicatePath'];
+            $path = (substr($path, 0, 1) === '/') ? $path : $this->dir . $path;
+            if (!mkdir($path, 0777, true)) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
 
-        $this->thumbsDir = $this->dir .  $this->config['thumbsPath'] . '/';
-        $this->duplicateDir = $this->dir .  $this->config['duplicatePath'] . '/';
+        $this->thumbsDir = $this->dir .  $this->addTrailingSlash($this->config['thumbsPath']);
+        $this->duplicateDir = $this->dir .  $this->addTrailingSlash($this->config['duplicatePath']);
     }
 
     /**
@@ -214,7 +216,8 @@ abstract class AbstractCommand extends Command
      */
     protected function isSystemDir(\DirectoryIterator $directory) : bool
     {
-        return ($directory == $this->getThumbsDir() || $directory == $this->getDuplicateDir());
+        return ($this->addTrailingSlash($directory->getPathname()) == $this->getThumbsDir()
+            || $this->addTrailingSlash($directory->getPathname()) == $this->getDuplicateDir());
     }
 
     /**
@@ -241,5 +244,15 @@ abstract class AbstractCommand extends Command
     protected function getRelativePath(\DirectoryIterator $file) : string
     {
         return (substr($file->getPathname(), strlen($this->dir)));
+    }
+
+    /**
+     * Add a trailing slash to given path
+     * @param string $path
+     * @return string
+     */
+    private function addTrailingSlash(string $path) : string
+    {
+        return (substr($path, -1) === '/') ? $path : $path . '/';
     }
 }
