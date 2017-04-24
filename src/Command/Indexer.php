@@ -21,7 +21,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Indexer extends AbstractCommand
 {
     private $simulate = false;
-    private $splitDirs = false;
     private $keepDuplicates = false;
     /** @var OutputInterface */
     private $output;
@@ -37,8 +36,6 @@ class Indexer extends AbstractCommand
         $this->setDescription('Index your collection');
         $this->setHelp('Perform a simple index of your picture collection');
         $this->addOption('simulate', null, InputOption::VALUE_OPTIONAL, 'Simulate query and don\'t modify DB');
-        $this->addOption('split-dirs', null, InputOption::VALUE_OPTIONAL,
-            'Split directories and put them in their own table');
         $this->addOption('keep-duplicates', null, InputOption::VALUE_OPTIONAL,
             'If a duplicate file is detected, it\'s skipped instead of being moved');
     }
@@ -77,7 +74,6 @@ class Indexer extends AbstractCommand
     private function checkCustomParameters(InputInterface $input): void
     {
         $this->simulate = $input->hasParameterOption('--simulate');
-        $this->splitDirs = $input->hasParameterOption('--split-dirs');
         $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates');
     }
 
