@@ -92,7 +92,7 @@ class Indexer extends AbstractCommand
         $iterator = new \DirectoryIterator($directory);
 
         foreach ($iterator as $file) {
-            if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file)) {
+            if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
                 continue;
             }
             if ($file->isFile()) {

@@ -156,6 +156,11 @@ abstract class AbstractCommand extends Command
             }
         }
 
+        // Add trailing slash
+        if (substr($this->dir, -1) != '/') {
+            $this->dir .= '/';
+        }
+
         // Checking dirs
         $this->createSystemDirs();
     }
@@ -166,22 +171,22 @@ abstract class AbstractCommand extends Command
     private function createSystemDirs() : void
     {
         // Thumbs dir
-        if (!is_dir($this->dir .  '/' . $this->config['thumbsPath'])) {
-            if (!mkdir($this->dir .  '/' . $this->config['thumbsPath'])) {
+        if (!is_dir($this->dir . $this->config['thumbsPath'])) {
+            if (!mkdir($this->dir .  $this->config['thumbsPath'])) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
         // Duplicate dir
-        if (!is_dir($this->dir .  '/' . $this->config['duplicatePath'])) {
-            if (!mkdir($this->dir .  '/' . $this->config['duplicatePath'])) {
+        if (!is_dir($this->dir .  $this->config['duplicatePath'])) {
+            if (!mkdir($this->dir .  $this->config['duplicatePath'])) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
 
-        $this->thumbsDir = $this->dir .  '/' . $this->config['thumbsPath'] . '/';
-        $this->duplicateDir = $this->dir .  '/' . $this->config['duplicatePath'] . '/';
+        $this->thumbsDir = $this->dir .  $this->config['thumbsPath'] . '/';
+        $this->duplicateDir = $this->dir .  $this->config['duplicatePath'] . '/';
     }
 
     /**
@@ -210,6 +215,22 @@ abstract class AbstractCommand extends Command
     protected function isSystemDir(\DirectoryIterator $directory) : bool
     {
         return ($directory == $this->getThumbsDir() || $directory == $this->getDuplicateDir());
+    }
+
+    /**
+     * Check if given directory is ignored by User
+     * @param \DirectoryIterator $directory
+     * @return bool
+     */
+    protected function isIgnoredDir(\DirectoryIterator $directory) : bool
+    {
+        foreach ($this->config['ignoredPath'] as $ignoredDir) {
+            $path = (substr($ignoredDir, 0, 1) === '/') ? $ignoredDir : $this->dir . $ignoredDir;
+            if ($path == $directory->getPathname()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
