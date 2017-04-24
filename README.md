@@ -88,6 +88,9 @@ This custom config file can be loaded by this command for example :
 By default, _dadaindexer_ will take it's base directory as the root for index directory.
 You can easily change this behaviour by setting the `-d` option.
 
+If an index is already set and no `-d` value is provided, base directory of existing index
+will be taken as root for requested operation.
+
 ## Commands in details
 
 ### Index

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Dada\Command;
 
 
+use Dada\Entity\Directory;
 use Dada\Service\Doctrine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -135,6 +136,13 @@ abstract class AbstractCommand extends Command
         $helper = $this->getHelper('question');
         $this->dir = $input->getOption('directory');
         if (is_null($this->dir)) {
+            // No directory, getting Index root directory
+            /** @var Directory $dir */
+            if ($dir = Doctrine::getManager()->getRepository(Directory::class)->findOneBy(['parent' => null])) {
+                $this->dir = $this->addTrailingSlash($dir->getPath());
+                return;
+            }
+            // No directory stored.  Asking for default
             $question = new ConfirmationQuestion('You haven\'t indicated a base directory for the index.
             By default, it will be 
             «' . __DIR__ . '».
