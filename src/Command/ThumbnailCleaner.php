@@ -10,8 +10,15 @@ use Dada\Service\Doctrine;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ThumbnailCleaner
+ * @package Dada\Command
+ */
 class ThumbnailCleaner extends AbstractCommand
 {
+    /**
+     * Configure the command
+     */
     protected function configure() : void
     {
         parent::configure();
@@ -20,6 +27,11 @@ class ThumbnailCleaner extends AbstractCommand
         $this->setHelp('Remove unused/obsolete thumbnails from your cache');
     }
 
+    /**
+     * Main method : execute the command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);

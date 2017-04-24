@@ -12,8 +12,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+/**
+ * Class IndexDestroyer
+ * @package Dada\Command
+ */
 class IndexDestroyer extends AbstractCommand
 {
+    /**
+     * Configure the command
+     */
     protected function configure() : void
     {
         parent::configure();
@@ -22,6 +29,11 @@ class IndexDestroyer extends AbstractCommand
         $this->setHelp('Remove all entries from your collection');
     }
 
+    /**
+     * Main method : execute the command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var QuestionHelper $helper */

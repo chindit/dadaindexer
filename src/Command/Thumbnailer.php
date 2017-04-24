@@ -12,11 +12,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class Thumbnailer
+ * @package Dada\Command
+ */
 class Thumbnailer extends AbstractCommand
 {
     private $keepAspectRatio = false;
     private $config;
 
+    /**
+     * Configure the command
+     */
     protected function configure(): void
     {
         parent::configure();
@@ -26,6 +33,11 @@ class Thumbnailer extends AbstractCommand
         $this->addOption('keep-ratio', null, InputOption::VALUE_OPTIONAL, 'Keep image ratio when generating thumbs');
     }
 
+    /**
+     * Main method : execute the command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->config = $this->getConfig($input, $output);
@@ -66,6 +78,10 @@ class Thumbnailer extends AbstractCommand
         return;
     }
 
+    /**
+     * Generate a thumbnail for given file
+     * @param File $file
+     */
     private function generateThumbnail(File $file): void
     {
         $gdObject = ImageFactory::create($file->getPath() . $file->getName());
@@ -89,10 +105,16 @@ class Thumbnailer extends AbstractCommand
         Doctrine::getManager()->flush();
     }
 
-    private function getRatioSize($width, $height)
+    /**
+     * Return ratio calculation for given sizes
+     * @param int $width
+     * @param int $height
+     * @return float
+     */
+    private function getRatioSize(int $width, int $height) : float
     {
-        $ratioWidth = $width / $this->config['thumbSize']['width'];
-        $ratioHeight = $height / $this->config['thumbSize']['height'];
+        $ratioWidth = (float)($width / $this->config['thumbSize']['width']);
+        $ratioHeight = (float)($height / $this->config['thumbSize']['height']);
         return ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
     }
 }

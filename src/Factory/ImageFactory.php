@@ -3,8 +3,17 @@ declare(strict_types=1);
 
 namespace Dada\Factory;
 
+/**
+ * Class ImageFactory
+ * @package Dada\Factory
+ */
 class ImageFactory
 {
+    /**
+     * Return a correct image resource for input filename
+     * @param string $filename
+     * @return null|resource
+     */
     public static function create(string $filename)
     {
         $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -13,7 +22,7 @@ class ImageFactory
 
         switch ($mime) {
             case 'image/jpeg':
-                return imagecreatefromjpeg( $filename);
+                return imagecreatefromjpeg($filename);
             case 'image/png':
                 return imagecreatefrompng($filename);
             case 'image/vnd.wap.wbmp':

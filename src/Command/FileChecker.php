@@ -9,8 +9,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class FileChecker
+ * @package Dada\Command
+ */
 class FileChecker extends AbstractCommand
 {
+    /**
+     * Configure the command
+     */
     protected function configure() : void
     {
         parent::configure();
@@ -20,6 +27,11 @@ class FileChecker extends AbstractCommand
         $this->addOption('file', 'f', InputOption::VALUE_OPTIONAL, 'File to check');
     }
 
+    /**
+     * Main method : execute the command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         parent::getConfig($input, $output);
@@ -39,6 +51,11 @@ class FileChecker extends AbstractCommand
         return;
     }
 
+    /**
+     * Return true if extension is correct otherwise fix it and return false
+     * @param string $file
+     * @return bool
+     */
     public static function getCorrectExtension(string $file) : bool
     {
         $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -62,6 +79,10 @@ class FileChecker extends AbstractCommand
         }
     }
 
+    /**
+     * Loop recursively on a directory
+     * @param string $directory
+     */
     private function loopDir(string $directory)
     {
         $iterator = new \DirectoryIterator($directory);
