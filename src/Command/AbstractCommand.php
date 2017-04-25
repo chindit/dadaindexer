@@ -35,7 +35,7 @@ abstract class AbstractCommand extends Command
     {
         parent::__construct();
 
-        $this->config = parse_ini_file(__DIR__ . '/../Resources/config.ini');
+        $this->config = parse_ini_file(__DIR__ . '/../Resources/config.ini', true);
     }
 
     /**
@@ -67,7 +67,7 @@ abstract class AbstractCommand extends Command
         //Loading config
         if ($input->getOption('configuration') && !$this->customConfigLoaded) {
             $filePath = $input->getOption('configuration');
-            $customConfig = parse_ini_file($filePath);
+            $customConfig = parse_ini_file($filePath, true);
             if ($customConfig) {
                 $this->config = array_merge($this->config, $customConfig);
             } else {
@@ -103,6 +103,7 @@ abstract class AbstractCommand extends Command
         $this->getConfig($input, $output);
         $this->doctrinePreCheck($output);
         $this->directoryHelper($input);
+        $this->createSystemDirs();
     }
 
     /**
@@ -166,9 +167,6 @@ abstract class AbstractCommand extends Command
 
         // Add trailing slash
         $this->dir = $this->addTrailingSlash(realpath($this->dir));
-
-        // Checking dirs
-        $this->createSystemDirs();
     }
 
     /**
@@ -177,26 +175,23 @@ abstract class AbstractCommand extends Command
     private function createSystemDirs() : void
     {
         // Thumbs dir
-        if (!is_dir($this->dir . $this->config['thumbsPath'])) {
-            $path = $this->config['thumbsPath'];
-            $path = (substr($path, 0, 1) === '/') ? $path : $this->dir . $path;
-            if (!mkdir($path, 0777, true)) {
+        $this->thumbsDir = (substr($this->config['directories']['thumbsPath'], 0, 1) === '/')
+            ? $this->config['directories']['thumbsPath'] : $this->dir . $this->config['directories']['thumbsPath'];
+        if (!is_dir($this->thumbsDir)) {
+            if (!mkdir($this->thumbsDir, 0777, true)) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
         // Duplicate dir
-        if (!is_dir($this->dir .  $this->config['duplicatePath'])) {
-            $path = $this->config['duplicatePath'];
-            $path = (substr($path, 0, 1) === '/') ? $path : $this->dir . $path;
-            if (!mkdir($path, 0777, true)) {
+        $this->duplicateDir = (substr($this->config['directories']['duplicatePath'], 0, 1) === '/')
+            ? $this->config['directories']['duplicatePath'] : $this->dir . $this->config['directories']['duplicatePath'];
+        if (!is_dir($this->duplicateDir)) {
+            if (!mkdir($this->duplicateDir, 0777, true)) {
                 $this->output('<error>Unable to create system dir</error>');
                 exit(1);
             }
         }
-
-        $this->thumbsDir = $this->dir .  $this->addTrailingSlash($this->config['thumbsPath']);
-        $this->duplicateDir = $this->dir .  $this->addTrailingSlash($this->config['duplicatePath']);
     }
 
     /**
@@ -235,7 +230,7 @@ abstract class AbstractCommand extends Command
      */
     protected function isIgnoredDir(\DirectoryIterator $directory) : bool
     {
-        foreach ($this->config['ignoredPath'] as $ignoredDir) {
+        foreach ($this->config['directories']['ignoredPath'] as $ignoredDir) {
             $path = (substr($ignoredDir, 0, 1) === '/') ? $ignoredDir : $this->dir . $ignoredDir;
             if ($path == $directory->getPathname()) {
                 return true;

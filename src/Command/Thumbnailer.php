@@ -40,8 +40,8 @@ class Thumbnailer extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        parent::execute($input, $output);
         $this->config = $this->getConfig($input, $output);
-        Doctrine::getInstance($this->config);
         $this->keepAspectRatio = $input->hasParameterOption('--keep-ratio');
         // Get list of directories
         $directoryList = Doctrine::getManager()->getRepository(Directory::class)->findAll();
@@ -84,15 +84,15 @@ class Thumbnailer extends AbstractCommand
      */
     private function generateThumbnail(File $file): void
     {
-        $gdObject = ImageFactory::create($file->getPath() . $file->getName());
+        $gdObject = ImageFactory::create($this->dir . $file->getPath());
         if (!$gdObject) {
             $this->output('<comment>Picture «' . $file->getName() . '» is not a valid picture');
         }
         $thumb = null;
-        if (!$this->config['keepRatio']) {
-            $thumb = imagecreatetruecolor($this->config['thumbSize']['width'], $this->config['thumbSize']['height']);
-            imagecopyresized($thumb, $gdObject, 0, 0, 0, 0, $this->config['thumbSize']['width'],
-                $this->config['thumbSize']['height'], $file->getWidth(), $file->getHeight());
+        if (!$this->config['thumbnails']['keepRatio']) {
+            $thumb = imagecreatetruecolor($this->config['thumbnails']['width'], $this->config['thumbnails']['height']);
+            imagecopyresized($thumb, $gdObject, 0, 0, 0, 0, $this->config['thumbnails']['width'],
+                $this->config['thumbnails']['height'], $file->getWidth(), $file->getHeight());
         } else {
             $ratio = $this->getRatioSize($gdObject['width'], $gdObject['height']);
             $thumb = imagecreatetruecolor(($file->getWidth() * $ratio), ($file->getHeight()));
@@ -113,8 +113,8 @@ class Thumbnailer extends AbstractCommand
      */
     private function getRatioSize(int $width, int $height) : float
     {
-        $ratioWidth = (float)($width / $this->config['thumbSize']['width']);
-        $ratioHeight = (float)($height / $this->config['thumbSize']['height']);
+        $ratioWidth = (float)($width / $this->config['thumbnails']['width']);
+        $ratioHeight = (float)($height / $this->config['thumbnails']['height']);
         return ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
     }
 }

@@ -31,11 +31,11 @@ class Doctrine
         $paths = array(__DIR__ . '/../Entity/');
         $isDevMode = false;
         $dbParams = array(
-            'dbname' => $config['base'],
-            'user' => $config['user'],
-            'password' => $config['pass'],
-            'host' => $config['server'],
-            'driver' => (strpos($config['driver'], 'pdo_') === 0) ? $config['driver'] : 'pdo_' . $config['driver']
+            'dbname' => $config['database']['base'],
+            'user' => $config['database']['user'],
+            'password' => $config['database']['pass'],
+            'host' => $config['database']['server'],
+            'driver' => (strpos($config['databaseOptions']['driver'], 'pdo_') === 0) ? $config['databaseOptions']['driver'] : 'pdo_' . $config['databaseOptions']['driver']
         );
 
         $config = Setup::createConfiguration($isDevMode);

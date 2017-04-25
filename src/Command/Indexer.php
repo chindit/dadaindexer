@@ -150,7 +150,7 @@ class Indexer extends AbstractCommand
         // Ignored MIME types
         $currentFile->setMime(finfo_file($fileInfo, $file->getPathname()));
         finfo_close($fileInfo);
-        if(in_array($currentFile->getMime(), $this->config['ignoredMime'])){
+        if(in_array($currentFile->getMime(), $this->config['mime']['ignoredMime'])){
             $this->output('<info>File «' . $file->getFilename() . '» was ignored due to it\'s type</info>');
             return;
         }

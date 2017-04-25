@@ -42,7 +42,7 @@ thumbsPath=thumbs/
 duplicatePath=duplicates/
 ignoredPath[]=..
 baseDir=.
-[thumbSize]
+[thumbnails]
 width=85
 height=85
 keepRatio=true
