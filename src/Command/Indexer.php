@@ -9,9 +9,11 @@ use Dada\Repository\DirectoryRepository;
 use Dada\Repository\FileRepository;
 use Dada\Resources\Type;
 use Dada\Service\Doctrine;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class Indexer
@@ -27,7 +29,6 @@ class Indexer extends AbstractCommand
     /** @var OutputInterface */
     private $output;
     private $config;
-    private $directoryFiles = [];
 
     /**
      * Constructor
@@ -80,6 +81,22 @@ class Indexer extends AbstractCommand
         $this->simulate = $input->hasParameterOption('--simulate') || $this->config['options']['simulate'];
         $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates');
         $this->checkDuplicates = $input->hasParameterOption('--check-duplicates') || $this->config['options']['checkDuplicates'];
+
+        // Check if we need to recalculate checksum
+        if ($this->checkDuplicates) {
+            /** @var FileRepository $fileRepository */
+            $fileRepository = Doctrine::getManager()->getRepository(File::class);
+            if ($fileRepository->countMissingChecksums() > 0) {
+                /** @var QuestionHelper $helper */
+                $helper = $this->getHelper('question');
+                $question = new ConfirmationQuestion('Some indexed files doesn\'t have checksum.  Do you want to calculate it?', false);
+
+                if ($helper->ask($input, $this->output, $question)) {
+                    $this->output->writeln('<info>Checksum calculation started.</info>');
+
+                }
+            }
+        }
     }
 
     /**
@@ -95,11 +112,13 @@ class Indexer extends AbstractCommand
         // Retrieve all files for this directory
         /** @var FileRepository $fileRepository */
         $fileRepository = Doctrine::getManager()->getRepository(File::class);
-        $this->directoryFiles = ($fileRepository->findByPath($directory)) ?: [];
+        $fileList = array_map('current', ($fileRepository->findByPath($parent)) ?: []);
 
         foreach ($iterator as $file) {
             if ($file->isFile()) {
-                $this->indexFile($file, $parent);
+                if (!in_array($file->getFilename(), $fileList)) {
+                    $this->indexFile($file, $parent);
+                }
             } elseif ($file->isDir()) {
                 // Skip unwanted directories
                 if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
@@ -165,14 +184,6 @@ class Indexer extends AbstractCommand
             return;
         }
 
-        // Check if file exists
-        /** @var File $iteratedFile */
-        foreach ($this->directoryFiles as $iteratedFile) {
-            if ($iteratedFile->getName() == $file->getFilename()) {
-                return;
-            }
-        }
-
         // Index file
         if ($this->checkDuplicates) {
             $currentFile->setMd5sum(md5_file($file->getPathName()));
@@ -223,10 +234,17 @@ class Indexer extends AbstractCommand
      */
     private function startIndexing() : void
     {
-        $baseIterator = new \DirectoryIterator($this->dir);
-        $baseDirectory = $this->initDirectory($baseIterator, 0);
-        $baseDirectory->setPath($baseIterator->getRealPath());
-        Doctrine::getManager()->flush();
+        /** @var DirectoryRepository $directoryRepository */
+        $directoryRepository = Doctrine::getManager()->getRepository(Directory::class);
+        $baseDirectory =
+            $directoryRepository->dirExists($this->dir, '.')
+            ?? call_user_func(function() : Directory{
+                $baseIterator = new \DirectoryIterator($this->dir);
+                $baseDirectory = $this->initDirectory($baseIterator, 0);
+                $baseDirectory->setPath($this->addTrailingSlash($baseIterator->getRealPath()));
+                Doctrine::getManager()->flush();
+                return $baseDirectory;
+            });
 
         // Launch indexation process
         $this->indexDirectory($baseDirectory->getPath(), 1, $baseDirectory);

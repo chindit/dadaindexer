@@ -22,12 +22,44 @@ class FileRepository extends \Doctrine\ORM\EntityRepository
             ->getScalarResult();
     }
 
-    public function findByPath(string $path)
+    /**
+     * Get all files of a directory
+     * @param string $path
+     * @return array
+     */
+    public function findByPath(Directory $directory)
     {
         return $this->createQueryBuilder('f')
-            ->join(Directory::class, 'd')
-            ->where('d.path = :path')
-            ->setParameter('path', $path)
+            ->select('f.name')
+            ->where('f.directory = :directory')
+            ->setParameter('directory', $directory)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
+    /**
+     * Count number of files with missing checksum
+     * @return int
+     */
+    public function countMissingChecksums() : int
+    {
+        return intval($this->createQueryBuilder('f')
+            ->select('COUNT(f.id)')
+            ->where('f.checksum IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult());
+    }
+
+    /**
+     * Return first $max files without checksum
+     * @param int $max
+     * @return array
+     */
+    public function getFilesWithoutChecksum(int $max)
+    {
+        return $this->createQueryBuilder('f')
+            ->where('f.checksum IS NULL')
+            ->setMaxResults($max)
             ->getQuery()
             ->getResult();
     }

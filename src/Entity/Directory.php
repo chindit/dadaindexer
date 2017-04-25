@@ -61,7 +61,7 @@ class Directory
     public function __construct(\DirectoryIterator $directoryIterator, int $level = 0, Directory $parent = null)
     {
         $this->name = $directoryIterator->getFilename();
-        $this->path = $directoryIterator->getPathname();
+        $this->path = $directoryIterator->getBasename();
         $this->parent = $parent;
         $this->level = $level;
     }

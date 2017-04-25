@@ -254,7 +254,7 @@ abstract class AbstractCommand extends Command
      * @param string $path
      * @return string
      */
-    private function addTrailingSlash(string $path) : string
+    protected function addTrailingSlash(string $path) : string
     {
         return (substr($path, -1) === '/') ? $path : $path . '/';
     }
