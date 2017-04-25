@@ -64,7 +64,7 @@ charset=utf8
 emulate=false
 driver=mysql
 [Options]
-fullDuplicate=false
+checkDuplicates=false
 simulate=false
 ```
 

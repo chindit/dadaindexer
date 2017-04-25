@@ -6,6 +6,7 @@ namespace Dada\Command;
 use Dada\Entity\Directory;
 use Dada\Entity\File;
 use Dada\Repository\DirectoryRepository;
+use Dada\Repository\FileRepository;
 use Dada\Resources\Type;
 use Dada\Service\Doctrine;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,9 +23,11 @@ class Indexer extends AbstractCommand
 {
     private $simulate = false;
     private $keepDuplicates = false;
+    private $checkDuplicates = false;
     /** @var OutputInterface */
     private $output;
     private $config;
+    private $directoryFiles = [];
 
     /**
      * Constructor
@@ -38,6 +41,7 @@ class Indexer extends AbstractCommand
         $this->addOption('simulate', null, InputOption::VALUE_OPTIONAL, 'Simulate query and don\'t modify DB');
         $this->addOption('keep-duplicates', null, InputOption::VALUE_OPTIONAL,
             'If a duplicate file is detected, it\'s skipped instead of being moved');
+        $this->addOption('check-duplicates', null, InputOption::VALUE_OPTIONAL, 'Check for duplicate files');
     }
 
     /**
@@ -73,8 +77,9 @@ class Indexer extends AbstractCommand
      */
     private function checkCustomParameters(InputInterface $input): void
     {
-        $this->simulate = $input->hasParameterOption('--simulate');
+        $this->simulate = $input->hasParameterOption('--simulate') || $this->config['options']['simulate'];
         $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates');
+        $this->checkDuplicates = $input->hasParameterOption('--check-duplicates') || $this->config['options']['checkDuplicates'];
     }
 
     /**
@@ -86,6 +91,11 @@ class Indexer extends AbstractCommand
     private function indexDirectory(string $directory, int $level = 0, Directory $parent = null)
     {
         $iterator = new \DirectoryIterator($directory);
+
+        // Retrieve all files for this directory
+        /** @var FileRepository $fileRepository */
+        $fileRepository = Doctrine::getManager()->getRepository(File::class);
+        $this->directoryFiles = ($fileRepository->findByPath($directory)) ?: [];
 
         foreach ($iterator as $file) {
             if ($file->isFile()) {
@@ -156,13 +166,17 @@ class Indexer extends AbstractCommand
         }
 
         // Check if file exists
-        $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['path' => $this->getRelativePath($file), 'name' => $file->getFilename()]);
-        if ($indexedFile) {
-            return;
+        /** @var File $iteratedFile */
+        foreach ($this->directoryFiles as $iteratedFile) {
+            if ($iteratedFile->getName() == $file->getFilename()) {
+                return;
+            }
         }
 
         // Index file
-        $currentFile->setMd5sum(md5_file($file->getPathName()));
+        if ($this->checkDuplicates) {
+            $currentFile->setMd5sum(md5_file($file->getPathName()));
+        }
         $currentFile->setType(Type::getType($currentFile->getMime()));
         $currentFile->setName($file->getFilename());
         $currentFile->setDirectory($parent);
@@ -176,13 +190,15 @@ class Indexer extends AbstractCommand
         }
 
         // Check for duplicate
-        $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['md5sum' => $currentFile->getMd5sum()]);
-        if ($indexedFile) {
-            $this->output('<comment>File «' . $file->getFilename() . '» is detected as duplicate.</comment>');
-            if (!$this->keepDuplicates) {
-                $this->moveDuplicate($file);
+        if ($this->checkDuplicates) {
+            $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['md5sum' => $currentFile->getMd5sum()]);
+            if ($indexedFile) {
+                $this->output('<comment>File «' . $file->getFilename() . '» is detected as duplicate.</comment>');
+                if (!$this->keepDuplicates) {
+                    $this->moveDuplicate($file);
+                }
+                return;
             }
-            return;
         }
 
         // Persist is deactivated in case of simulation
