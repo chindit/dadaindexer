@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dada;
 
+use Dada\Command\ChecksumMaker;
 use Dada\Command\FileChecker;
 use Dada\Command\FullIndexer;
 use Dada\Command\IndexCleaner;
@@ -28,6 +29,7 @@ class DadaIndexer extends Application
         $commands[] = new ThumbnailCleaner();
         $commands[] = new Thumbnailer();
         $commands[] = new IndexDestroyer();
+        $commands[] = new ChecksumMaker();
 
         return $commands;
     }

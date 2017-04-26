@@ -45,7 +45,7 @@ class FileRepository extends \Doctrine\ORM\EntityRepository
     {
         return intval($this->createQueryBuilder('f')
             ->select('COUNT(f.id)')
-            ->where('f.checksum IS NULL')
+            ->where('f.md5sum IS NULL')
             ->getQuery()
             ->getSingleScalarResult());
     }
@@ -58,7 +58,7 @@ class FileRepository extends \Doctrine\ORM\EntityRepository
     public function getFilesWithoutChecksum(int $max)
     {
         return $this->createQueryBuilder('f')
-            ->where('f.checksum IS NULL')
+            ->where('f.md5sum IS NULL')
             ->setMaxResults($max)
             ->getQuery()
             ->getResult();

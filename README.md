@@ -27,6 +27,7 @@ re-indexation and generation of missing pictures
 * `clean-thumbs` Delete obsolete thumbnails
 * `mkthumbs` Generate missing thumbnails
 * `destroy` Destroy current index (but not thumbnails)
+* `checksum` Generate missing checksums
 
 ## Global arguments
 
@@ -101,6 +102,12 @@ Most common way to call this command is by running this:
 This command also supports these two optionals arguments:
 * `--simulate` : simulate indexation and do not save anything in database
 * `--keep-duplicates` : detect duplicate files but do *not* move them in `duplicates`directory
+* `--check-duplicates` : calculate checksum of indexed files for fine detection of
+possible duplicates.
+
+***NOTE*** Argument `--keep-duplicates` will only be taken in consideration if
+`--check-duplicates` parameter is given or activated in configuration.  Otherwise,
+`--keep-duplicates` argument will simply be ignored.
 
 ### Check-filetype
 This command just check if input file has the correct extension and require a `-f` argument pointing to a valid file.
@@ -149,6 +156,16 @@ Destroy current index.
 Example:
 `php dadaindexer.php destroy -d /my/index -c my/config`
 
+### Checksum
+Generate missing checksum for files.
+
+*Warning* This operation can be time consuming.
+
+A checksum is required for a fine detection of duplicates files, but it's
+really time-consuming if you have big files, a lot of files and/or a weak machine.
+
+By default, checksum is disabled and can be enabled in config or directly with the
+`--check-duplicates` parameter when indexing.
 
 
 # Legacy version
