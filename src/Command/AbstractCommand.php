@@ -69,7 +69,7 @@ abstract class AbstractCommand extends Command
             $filePath = $input->getOption('configuration');
             $customConfig = parse_ini_file($filePath, true);
             if ($customConfig) {
-                $this->config = array_merge($this->config, $customConfig);
+                $this->config = array_replace_recursive($this->config, $customConfig);
             } else {
                 $output->writeln('<error>Your config is invalid</error>');
                 exit(1);

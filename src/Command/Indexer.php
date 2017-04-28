@@ -89,7 +89,8 @@ class Indexer extends AbstractCommand
             if ($fileRepository->countMissingChecksums() > 0) {
                 /** @var QuestionHelper $helper */
                 $helper = $this->getHelper('question');
-                $question = new ConfirmationQuestion('Some indexed files doesn\'t have checksum.  Do you want to calculate it?', false);
+                $question = new ConfirmationQuestion('Some indexed files doesn\'t have checksum.  Do you want to calculate it?',
+                    false);
 
                 if ($helper->ask($input, $this->output, $question)) {
                     $this->output->writeln('<info>Checksum calculation started.</info>');
@@ -110,10 +111,12 @@ class Indexer extends AbstractCommand
         $iterator = new \DirectoryIterator($directory);
 
         // Retrieve all files for this directory
-        /** @var FileRepository $fileRepository */
-        $fileRepository = Doctrine::getManager()->getRepository(File::class);
-        $fileList = array_map('current', ($fileRepository->findByPath($parent)) ?: []);
-
+        $fileList = [];
+        if (!$this->simulate) {
+            /** @var FileRepository $fileRepository */
+            $fileRepository = Doctrine::getManager()->getRepository(File::class);
+            $fileList = array_map('current', ($fileRepository->findByPath($parent)) ?: []);
+        }
         foreach ($iterator as $file) {
             if ($file->isFile()) {
                 if (!in_array($file->getFilename(), $fileList)) {
@@ -121,7 +124,7 @@ class Indexer extends AbstractCommand
                 }
             } elseif ($file->isDir()) {
                 // Skip unwanted directories
-                if ($file->getFilename() == '.' || $file->getFilename() == '..'  || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
+                if ($file->getFilename() == '.' || $file->getFilename() == '..' || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
                     continue;
                 }
                 /** @var DirectoryRepository $directoryRepository */
@@ -148,7 +151,7 @@ class Indexer extends AbstractCommand
      * @param Directory|null $parent
      * @return Directory
      */
-    private function initDirectory(\DirectoryIterator $file, int $level, Directory $parent = null) : Directory
+    private function initDirectory(\DirectoryIterator $file, int $level, Directory $parent = null): Directory
     {
         $directory = new Directory($file, $level + 1, $parent);
         Doctrine::getManager()->persist($directory);
@@ -171,7 +174,7 @@ class Indexer extends AbstractCommand
         $currentFile->setDirectory($parent);
 
         // Invalid or hidden files
-        if(strpos($file->getFilename(), '.') === false || strpos($file->getFilename(), '.') == 0){
+        if (strpos($file->getFilename(), '.') === false || strpos($file->getFilename(), '.') == 0) {
             $this->output('<info>File skipped : «' . $file->getFilename() . '»</info>');
             return;
         }
@@ -179,7 +182,7 @@ class Indexer extends AbstractCommand
         // Ignored MIME types
         $currentFile->setMime(finfo_file($fileInfo, $file->getPathname()));
         finfo_close($fileInfo);
-        if(in_array($currentFile->getMime(), $this->config['mime']['ignoredMime'])){
+        if (in_array($currentFile->getMime(), $this->config['mime']['ignoredMime'])) {
             $this->output('<info>File «' . $file->getFilename() . '» was ignored due to it\'s type</info>');
             return;
         }
@@ -224,7 +227,7 @@ class Indexer extends AbstractCommand
      *
      * @param \DirectoryIterator $file
      */
-    private function moveDuplicate(\DirectoryIterator $file) : void
+    private function moveDuplicate(\DirectoryIterator $file): void
     {
         rename($file->getPathname(), $this->getDuplicateDir() . $file->getFilename());
     }
@@ -232,17 +235,19 @@ class Indexer extends AbstractCommand
     /**
      * Special method used to create the root directory of a new index
      */
-    private function startIndexing() : void
+    private function startIndexing(): void
     {
         /** @var DirectoryRepository $directoryRepository */
         $directoryRepository = Doctrine::getManager()->getRepository(Directory::class);
         $baseDirectory =
             $directoryRepository->dirExists($this->dir, '.')
-            ?? call_user_func(function() : Directory{
+            ?? call_user_func(function (): Directory {
                 $baseIterator = new \DirectoryIterator($this->dir);
                 $baseDirectory = $this->initDirectory($baseIterator, 0);
                 $baseDirectory->setPath($this->addTrailingSlash($baseIterator->getRealPath()));
-                Doctrine::getManager()->flush();
+                if (!$this->simulate) {
+                    Doctrine::getManager()->flush();
+                }
                 return $baseDirectory;
             });
 
