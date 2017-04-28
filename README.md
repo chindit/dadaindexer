@@ -168,6 +168,17 @@ By default, checksum is disabled and can be enabled in config or directly with t
 `--check-duplicates` parameter when indexing.
 
 
+## Building DadaIndexer
+If you want to modify and re-build a new _phar_ for _DadaIndexer_, dowload _Box_
+project, available here [Box.phar](https://github.com/box-project/box2])
+
+Then, run this command: 
+
+`php box.phar build -c phar.json`
+
+That's all!
+
+
 # Legacy version
 
 This version is available in the _indexer-cli.php_ file and should not be used.
