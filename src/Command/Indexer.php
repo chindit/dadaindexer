@@ -30,7 +30,6 @@ class Indexer extends AbstractCommand
     private $reportContent = [];
     /** @var OutputInterface */
     private $output;
-    private $config;
 
     /**
      * Constructor
@@ -202,10 +201,6 @@ class Indexer extends AbstractCommand
             return;
         }
 
-        // Index file
-        if ($this->checkDuplicates) {
-            $currentFile->setMd5sum(md5_file($file->getPathName()));
-        }
         $currentFile->setType(Type::getType($currentFile->getMime()));
         $currentFile->setName($file->getFilename());
         $currentFile->setDirectory($parent);
@@ -220,6 +215,7 @@ class Indexer extends AbstractCommand
 
         // Check for duplicate
         if ($this->checkDuplicates) {
+            $currentFile->setMd5sum(md5_file($file->getPathName()));
             /** @var File $indexedFile */
             $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['md5sum' => $currentFile->getMd5sum()]);
             if ($indexedFile) {

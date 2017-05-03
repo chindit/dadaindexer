@@ -13,8 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ChecksumMaker extends AbstractCommand
 {
-    private $config;
-
     /**
      * Command definition
      */

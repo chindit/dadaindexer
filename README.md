@@ -64,7 +64,7 @@ pass=
 charset=utf8
 emulate=false
 driver=mysql
-[Options]
+[options]
 checkDuplicates=false
 keepDuplicates=false
 simulate=false

@@ -20,7 +20,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 abstract class AbstractCommand extends Command
 {
-    private $config;
+    protected $config;
     private $customConfigLoaded = false;
     /** @var OutputInterface */
     private $output;
@@ -34,7 +34,6 @@ abstract class AbstractCommand extends Command
     public function __construct()
     {
         parent::__construct();
-
         $this->config = parse_ini_file(__DIR__ . '/../Resources/config.ini', true);
     }
 

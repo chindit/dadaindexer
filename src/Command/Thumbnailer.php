@@ -19,7 +19,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Thumbnailer extends AbstractCommand
 {
     private $keepAspectRatio = false;
-    private $config;
 
     /**
      * Configure the command
