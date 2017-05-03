@@ -115,6 +115,7 @@ class Indexer extends AbstractCommand
      */
     private function indexDirectory(string $directory, int $level = 0, Directory $parent = null)
     {
+        // Creating iterator
         $iterator = new \DirectoryIterator($directory);
 
         // Retrieve all files for this directory
@@ -130,10 +131,12 @@ class Indexer extends AbstractCommand
                     $this->indexFile($file, $parent);
                 }
             } elseif ($file->isDir()) {
-                // Skip unwanted directories
-                if ($file->getFilename() == '.' || $file->getFilename() == '..' || $this->isSystemDir($file) || $this->isIgnoredDir($file)) {
+
+                // Skipping unwanted directories
+                if ($this->isSystemDir($iterator) || $this->isIgnoredDir($iterator)) {
                     continue;
                 }
+
                 /** @var DirectoryRepository $directoryRepository */
                 $directoryRepository = Doctrine::getManager()->getRepository(Directory::class);
                 $currentDirectory =
@@ -207,7 +210,7 @@ class Indexer extends AbstractCommand
         $currentFile->setName($file->getFilename());
         $currentFile->setDirectory($parent);
         $currentFile->setWeight($file->getSize());
-        $currentFile->setPath($this->getRelativePath($file));
+        $currentFile->setPath($this->getRelativePath($file->getPathname()));
 
         if ($currentFile->getType() == File::PICTURE) {
             $size = getimagesize($file->getPathname());

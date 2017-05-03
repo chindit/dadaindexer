@@ -220,7 +220,8 @@ abstract class AbstractCommand extends Command
     protected function isSystemDir(\DirectoryIterator $directory) : bool
     {
         return ($this->addTrailingSlash($directory->getPathname()) == $this->getThumbsDir()
-            || $this->addTrailingSlash($directory->getPathname()) == $this->getDuplicateDir());
+            || $this->addTrailingSlash($directory->getPathname()) == $this->getDuplicateDir()
+            || substr($directory->getFilename(), 0, 1) == '.');
     }
 
     /**
@@ -244,9 +245,9 @@ abstract class AbstractCommand extends Command
      * @param \DirectoryIterator $file
      * @return string
      */
-    protected function getRelativePath(\DirectoryIterator $file) : string
+    protected function getRelativePath(string $file) : string
     {
-        return (substr($file->getPathname(), strlen($this->dir)));
+        return (substr($file, strlen($this->dir)));
     }
 
     /**
