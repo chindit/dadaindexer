@@ -66,7 +66,9 @@ emulate=false
 driver=mysql
 [Options]
 checkDuplicates=false
+keepDuplicates=false
 simulate=false
+report=false
 ```
 
 Any of these values can be overwritten and your `INI` file does not have to contains every parametere.
@@ -101,9 +103,12 @@ Most common way to call this command is by running this:
 
 This command also supports these two optionals arguments:
 * `--simulate` : simulate indexation and do not save anything in database
-* `--keep-duplicates` : detect duplicate files but do *not* move them in `duplicates`directory
+* `--keep-duplicates` : detect duplicate files but do *not* move them in `duplicates`directory.
+This argument can also be set in *config.ini* file
 * `--check-duplicates` : calculate checksum of indexed files for fine detection of
 possible duplicates.
+* `--report` : Generate a *txt* file with modifications and duplicates found.
+This option can also be enabled in config.
 
 ***NOTE*** Argument `--keep-duplicates` will only be taken in consideration if
 `--check-duplicates` parameter is given or activated in configuration.  Otherwise,

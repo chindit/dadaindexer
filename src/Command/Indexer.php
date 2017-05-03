@@ -26,6 +26,8 @@ class Indexer extends AbstractCommand
     private $simulate = false;
     private $keepDuplicates = false;
     private $checkDuplicates = false;
+    private $report = false;
+    private $reportContent = [];
     /** @var OutputInterface */
     private $output;
     private $config;
@@ -68,6 +70,10 @@ class Indexer extends AbstractCommand
         // Indexing
         $this->startIndexing();
 
+
+        if ($this->report) {
+            file_put_contents($this->dir . 'report.txt', implode("\n", $this->reportContent) . "\n", FILE_APPEND);
+        }
         $output->writeln('<info>Process took ' . round((microtime(true) - $timeStart), 3) . ' seconds.</info>');
         return;
     }
@@ -79,8 +85,9 @@ class Indexer extends AbstractCommand
     private function checkCustomParameters(InputInterface $input): void
     {
         $this->simulate = $input->hasParameterOption('--simulate') || $this->config['options']['simulate'];
-        $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates');
+        $this->keepDuplicates = $input->hasParameterOption('--keep-duplicates') || $this->config['options']['keepDuplicates'];
         $this->checkDuplicates = $input->hasParameterOption('--check-duplicates') || $this->config['options']['checkDuplicates'];
+        $this->report = $input->hasParameterOption('--report') || $this->config['options']['report'];
 
         // Check if we need to recalculate checksum
         if ($this->checkDuplicates) {
@@ -136,10 +143,12 @@ class Indexer extends AbstractCommand
 
                 // Outputting
                 $this->output('<info>Visiting «' . $currentDirectory->getName() . '»</info>');
+                $this->reportContent[] = 'Visiting «' . $currentDirectory->getName() . '»';
 
                 $this->indexDirectory($file->getPathname(), ($level + 1), $currentDirectory);
             } else {
                 $this->output('<error>Unable to visit «' . $file->getFilename() . '»</error>');
+                $this->reportContent[] = 'Unable to visit «' . $file->getFilename() . '»';
             }
         }
     }
@@ -153,6 +162,7 @@ class Indexer extends AbstractCommand
      */
     private function initDirectory(\DirectoryIterator $file, int $level, Directory $parent = null): Directory
     {
+        $this->reportContent[] = 'Starting indexing of «' . $file->getPathname() . '»';
         $directory = new Directory($file, $level + 1, $parent);
         Doctrine::getManager()->persist($directory);
         if (!$this->simulate) {
@@ -176,6 +186,7 @@ class Indexer extends AbstractCommand
         // Invalid or hidden files
         if (strpos($file->getFilename(), '.') === false || strpos($file->getFilename(), '.') == 0) {
             $this->output('<info>File skipped : «' . $file->getFilename() . '»</info>');
+            $this->reportContent[] = 'File skipped : «' . $file->getPathname() . '»';
             return;
         }
 
@@ -184,6 +195,7 @@ class Indexer extends AbstractCommand
         finfo_close($fileInfo);
         if (in_array($currentFile->getMime(), $this->config['mime']['ignoredMime'])) {
             $this->output('<info>File «' . $file->getFilename() . '» was ignored due to it\'s type</info>');
+            $this->reportContent[] = 'File «' . $file->getPathname() . '» was ignored due to it\'s type';
             return;
         }
 
@@ -205,9 +217,11 @@ class Indexer extends AbstractCommand
 
         // Check for duplicate
         if ($this->checkDuplicates) {
+            /** @var File $indexedFile */
             $indexedFile = Doctrine::getManager()->getRepository(File::class)->findOneBy(['md5sum' => $currentFile->getMd5sum()]);
             if ($indexedFile) {
                 $this->output('<comment>File «' . $file->getFilename() . '» is detected as duplicate.</comment>');
+                $this->reportContent[] = 'File «' . $file->getPathname() . '» is detected as a duplicate of «' . $indexedFile->getPath() . '»';
                 if (!$this->keepDuplicates) {
                     $this->moveDuplicate($file);
                 }
