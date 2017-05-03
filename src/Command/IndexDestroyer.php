@@ -38,7 +38,7 @@ class IndexDestroyer extends AbstractCommand
     {
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Do you really want to destroy your current index ?', false);
+        $question = new ConfirmationQuestion('Do you really want to destroy your current index ? (y/N) ', false);
 
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln('<info>Purge canceled.</info>');
